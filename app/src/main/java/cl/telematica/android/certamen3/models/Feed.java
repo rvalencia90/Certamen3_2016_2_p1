@@ -1,4 +1,4 @@
-package cl.telematica.android.certamen3;
+package cl.telematica.android.certamen3.models;
 
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -8,7 +8,7 @@ import android.os.Parcelable;
  */
 
 public class Feed implements Parcelable {
-
+    private int id;
     private String title;
     private String link;
     private String author;
@@ -113,5 +113,13 @@ public class Feed implements Parcelable {
 
     public void setFavorite(boolean favorite) {
         isFavorite = favorite;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 }

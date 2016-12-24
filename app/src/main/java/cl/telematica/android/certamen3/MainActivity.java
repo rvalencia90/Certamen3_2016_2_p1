@@ -1,5 +1,6 @@
 package cl.telematica.android.certamen3;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -14,57 +15,32 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
+import cl.telematica.android.certamen3.models.Feed;
+import cl.telematica.android.certamen3.presenters.FeedPresenterImpl;
+import cl.telematica.android.certamen3.views.MainActivityViewImpl;
+
 public class MainActivity extends AppCompatActivity {
 
     private RecyclerView mRecyclerView;
     private RecyclerView.LayoutManager mLayoutManager;
+    private MainActivityViewImpl mView;
+    private FeedPresenterImpl mPresenter;
+    private List<Feed> mFeeds;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        createMyRecyclerView();
-        MyAsyncTaskExecutor.getInstance().executeMyAsynctask(this, mRecyclerView);
+        mView = new MainActivityViewImpl(this);
+        mPresenter = new FeedPresenterImpl(this);
+
+        mView.createMyRecyclerView();
+        mFeeds = mPresenter.getDatos();
+        mView.display(mFeeds);
+
     }
 
-    public void createMyRecyclerView() {
-        mRecyclerView = (RecyclerView) findViewById(R.id.recyclerView);
-        mRecyclerView.setHasFixedSize(true);
-
-        mLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
-        mRecyclerView.setLayoutManager(mLayoutManager);
-    }
-
-    public List<Feed> getFeeds(String result) {
-        List<Feed> feeds = new ArrayList<>();
-        try {
-            JSONObject jsonObject = new JSONObject(result);
-            JSONObject responseData = jsonObject.getJSONObject("responseData");
-            JSONObject feedObj = responseData.getJSONObject("feed");
-
-            JSONArray entries = feedObj.getJSONArray("entries");
-            int size = entries.length();
-            for(int i = 0; i < size; i++){
-                JSONObject entryObj = entries.getJSONObject(i);
-                Feed feed = new Feed();
-
-                feed.setTitle(entryObj.optString("title"));
-                feed.setLink(entryObj.optString("link"));
-                feed.setAuthor(entryObj.optString("author"));
-                feed.setPublishedDate(entryObj.optString("publishedDate"));
-                feed.setContent(entryObj.optString("content"));
-                feed.setImage(entryObj.optString("image"));
-
-                feeds.add(feed);
-            }
-
-            return feeds;
-        } catch (JSONException e) {
-            e.printStackTrace();
-            return feeds;
-        }
-    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -84,7 +60,8 @@ public class MainActivity extends AppCompatActivity {
             /**
              * You should manage the action to show the favorite items saved by the user
              */
-            return true;
+            Intent intent = new Intent(MainActivity.this, FavoritesActivity.class);
+            startActivity(intent);
         }
 
         return super.onOptionsItemSelected(item);

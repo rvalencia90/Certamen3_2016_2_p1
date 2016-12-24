@@ -1,7 +1,9 @@
-package cl.telematica.android.certamen3;
+package cl.telematica.android.certamen3.models;
 
 import android.os.AsyncTask;
 import android.support.v7.widget.RecyclerView;
+
+import java.util.concurrent.ExecutionException;
 
 /**
  * Created by franciscocabezas on 11/18/16.
@@ -20,8 +22,11 @@ public class MyAsyncTaskExecutor {
         return instance;
     }
 
-    public void executeMyAsynctask(final MainActivity activity, final RecyclerView mRecyclerView) {
+    public String executeMyAsynctask() {
+        String asd = null;
+
         AsyncTask<Void, Void, String> task = new AsyncTask<Void, Void, String>() {
+            String resultado;
 
             @Override
             protected void onPreExecute(){
@@ -30,7 +35,7 @@ public class MyAsyncTaskExecutor {
 
             @Override
             protected String doInBackground(Void... params) {
-                String resultado = new HttpServerConnection().connectToServer("http://www.mocky.io/v2/582eea8b2600007b0c65f068", 15000);
+                resultado = new HttpServerConnection().connectToServer("http://www.mocky.io/v2/582eea8b2600007b0c65f068", 15000);
                 return resultado;
             }
 
@@ -39,14 +44,18 @@ public class MyAsyncTaskExecutor {
                 if(result != null){
                     System.out.println(result);
 
-                    //Why god... why
-                    mAdapter = new DataAdapter(activity, activity.getFeeds(result));
-                    mRecyclerView.setAdapter(mAdapter);
                 }
             }
         };
 
-        task.execute();
+        try {
+            asd = task.execute().get();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+        return asd;
     }
 
 }
